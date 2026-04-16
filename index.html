@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>FocusHub</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="main-container" id="main-content">
+        <div id="video-loader">
+        <video autoplay muted playsinline id="intro-video">
+            <source src="coolperson.mp4" type="video/mp4">
+        </video>
+        </div>
+        <h2>control of process</h2>
+
+        <div class="input-group">
+            <input type="text" id="app-name" placeholder="name of application">
+            <input type="text" id="app-path" placeholder="file path or e.t.c .exe">
+            <button class="add-btn" onclick="addApp()">add to list</button>
+        </div>
+
+        <div class="apps-list" id="dynamic-list">
+            </div>
+
+        <button class="save-btn" onclick="syncWithPython()">Activate</button>
+
+        <div class="status-bar">
+            <span>System is Ready</span>
+        </div>
+    </div>
+    <script>
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('video-loader').style.opacity = '0';
+                document.getElementById('main-content').style.display = 'block';
+                setTimeout(() => { document.getElementById('video-loader').remove(); }, 1000);
+            }, 2500);
+        });
+        function addApp() {
+            const nameInput = document.getElementById('app-name');
+            const pathInput = document.getElementById('app-path');
+            const list = document.getElementById('dynamic-list');
+            if (nameInput.value && pathInput.value) {
+                const item = document.createElement('div');
+                item.className = 'app-item';
+                item.innerHTML = `
+                    <div class="app-info">
+                        <span class="app-title">${nameInput.value}</span>
+                        <span class="app-path-text">${pathInput.value}</span>
+                    </div>
+                `;
+                list.appendChild(item);
+                
+                nameInput.value = '';
+                pathInput.value = '';
+            }
+        }
+        function syncWithPython() {
+            const paths = Array.from(document.querySelectorAll('.app-path-text'))
+                           .map(el => el.innerText);
+            fetch('/sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paths: paths })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.status === 'success') {
+                alert("security");
+                }
+            });
+        }
+    </script>
+</body>
+</html>
